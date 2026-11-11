@@ -475,6 +475,7 @@ function draw(){
 let lastT=0,acc=0,visible=true;
 new IntersectionObserver(([e])=>visible=e.isIntersecting).observe(cv);
 function loop(t){const dt=t-lastT;lastT=t;if(visible&&!document.hidden){acc+=Math.min(dt,100);while(acc>85){step();acc-=85;}draw();}requestAnimationFrame(loop);}
+updateReadout();draw();
 if(reduce){for(let k=0;k<200;k++)step();draw();}else requestAnimationFrame(loop);
 document.querySelector('header').addEventListener('click',e=>{if(e.target.closest('a'))return;origin=path.length-1;});
 
