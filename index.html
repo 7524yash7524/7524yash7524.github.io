@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yash Chitransh · Honest Uncertainty</title>
+<meta name="description" content="Yash Chitransh: time series forecasting, conformal prediction and uncertainty quantification. M.Sc. Mathematics & Scientific Computing, NIT Warangal. sktime contributor.">
+<meta property="og:title" content="Yash Chitransh · Honest Uncertainty">
+<meta property="og:description" content="Forecasts are promises. I check whether they are kept.">
+<meta name="theme-color" content="#0a0e1a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0e1a'/%3E%3Cpath d='M8 44 L20 36 L30 40 L40 26' stroke='%232dd4bf' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M40 26 L58 12 L58 40 Z' fill='%232dd4bf' opacity='.3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0e1a; --ink2:#0f1526; --card:#121a2e; --line:#1f2a44;
+  --text:#e6ebf5; --mute:#8b97b3; --teal:#2dd4bf; --amber:#fbbf24; --violet:#a78bfa; --rose:#fb7185;
+  --serif:'Instrument Serif',Georgia,serif; --mono:'JetBrains Mono',ui-monospace,monospace; --sans:'Manrope',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:var(--sans);line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--teal);color:var(--ink)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono)}
+/* grain + glow */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+#cursorglow{position:fixed;width:520px;height:520px;border-radius:50%;pointer-events:none;z-index:0;
+  background:radial-gradient(circle,rgba(45,212,191,.09),transparent 65%);transform:translate(-50%,-50%);left:-999px;top:-999px;transition:opacity .3s}
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+nav.solid{background:rgba(10,14,26,.82);backdrop-filter:blur(12px);border-color:var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:var(--serif);font-size:26px;letter-spacing:.5px}
+.logo i{color:var(--teal);font-style:italic}
+.links{display:flex;gap:26px;font-size:14px;color:var(--mute)}
+.links a{position:relative;transition:color .2s}
+.links a:hover{color:var(--text)}
+.links a::after{content:"";position:absolute;left:0;bottom:-4px;height:1px;width:0;background:var(--teal);transition:width .25s}
+.links a:hover::after{width:100%}
+@media(max-width:720px){.links{display:none}}
+/* hero */
+header{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden;padding:96px 0 120px}
+#fan{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+header .wrap{position:relative;z-index:2;width:100%;pointer-events:none}
+header .wrap *{pointer-events:auto}
+.eyebrow{font-family:var(--mono);font-size:13px;color:var(--teal);letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px;display:flex;align-items:center;gap:10px}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(45,212,191,.6);animation:ping 2s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 10px rgba(45,212,191,0)}100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,6.6vw,96px);line-height:.98;letter-spacing:-.01em;max-width:11ch}
+h1 em{color:var(--teal)}
+h1{max-width:12ch}h1 .w{display:inline-block;opacity:0;transform:translateY(40px) rotate(3deg);animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.lede{margin-top:28px;max-width:46ch;color:var(--mute);font-size:clamp(16px,1.6vw,19px);opacity:0;animation:rise 1s 1.1s forwards}
+.lede b{color:var(--text);font-weight:500}
+.cta{margin-top:36px;display:flex;flex-wrap:wrap;gap:14px;opacity:0;animation:rise 1s 1.3s forwards}
+.btn{font-family:var(--mono);font-size:13px;padding:12px 20px;border-radius:999px;border:1px solid var(--line);background:rgba(18,26,46,.6);backdrop-filter:blur(6px);transition:transform .2s,border-color .2s,background .2s;display:inline-flex;gap:8px;align-items:center}
+.btn:hover{transform:translateY(-2px);border-color:var(--teal)}
+.btn.primary{background:var(--teal);color:var(--ink);border-color:var(--teal);font-weight:600}
+.btn.primary:hover{background:#5eead4}
+.readout{position:absolute;right:24px;bottom:28px;z-index:3;font-family:var(--mono);font-size:12px;color:var(--mute);background:rgba(10,14,26,.75);border:1px solid var(--line);border-radius:12px;padding:12px 16px;backdrop-filter:blur(8px);min-width:250px}
+.readout .big{font-size:26px;color:var(--text);display:block;line-height:1.2}
+.readout .bar{height:4px;background:var(--line);border-radius:4px;margin:8px 0 6px;position:relative;overflow:visible}
+.readout .bar span{position:absolute;left:0;top:0;bottom:0;background:var(--teal);border-radius:4px;transition:width .3s}
+.readout .bar i{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--amber)}
+.readout small{display:block;opacity:.8}
+.hint{position:absolute;left:24px;bottom:28px;z-index:3;font-family:var(--mono);font-size:12px;color:var(--mute);opacity:.7}
+@media(max-width:720px){.readout{left:16px;right:16px;bottom:16px;min-width:0}.hint{display:none}}
+/* marquee */
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:18px 0;background:var(--ink2)}
+.marquee .track{display:flex;gap:48px;width:max-content;animation:scroll 38s linear infinite;font-family:var(--serif);font-size:28px;color:var(--mute)}
+.marquee .track span{display:flex;align-items:center;gap:48px;white-space:nowrap}
+.marquee .track span::after{content:"✦";font-size:14px;color:var(--teal)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+/* sections */
+section{position:relative;padding:120px 0;z-index:1}
+.label{font-family:var(--mono);font-size:12px;color:var(--teal);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+.label::before{content:attr(data-n)" / ";color:var(--mute)}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(36px,5vw,64px);line-height:1.05;margin-bottom:28px}
+h2 em{color:var(--teal)}
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+/* about */
+.about{display:grid;grid-template-columns:1.3fr 1fr;gap:64px;align-items:start}
+.about p{color:var(--mute);font-size:18px;margin-bottom:18px}
+.about p b{color:var(--text);font-weight:500}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+.stat .n{font-family:var(--serif);font-size:48px;line-height:1;color:var(--text)}
+.stat .n small{font-size:22px;color:var(--teal)}
+.stat .t{font-size:13px;color:var(--mute);margin-top:8px}
+.edu{margin-top:30px;border-left:1px solid var(--line);padding-left:20px}
+.edu div{position:relative;margin-bottom:16px}
+.edu div::before{content:"";position:absolute;left:-25px;top:8px;width:9px;height:9px;border-radius:50%;background:var(--ink);border:2px solid var(--teal)}
+.edu b{display:block;font-weight:500}
+.edu span{color:var(--mute);font-size:14px}
+@media(max-width:860px){.about{grid-template-columns:1fr;gap:40px}}
+/* research */
+.research{background:linear-gradient(180deg,var(--ink),var(--ink2) 30%,var(--ink2) 70%,var(--ink))}
+.paper{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
+.paper p{color:var(--mute);font-size:17px;margin-bottom:16px}
+.paper p b{color:var(--text);font-weight:500}
+.chart{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px 30px 22px}
+.chart h4{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase;margin-bottom:26px}
+.bars{position:relative;height:260px;display:flex;align-items:flex-end;gap:28px;padding:0 10px;border-bottom:1px solid var(--line)}
+.bars .target{position:absolute;left:0;right:0;border-top:2px dashed var(--amber);z-index:2}
+.bars .target span{position:absolute;left:0;top:-24px;font-family:var(--mono);font-size:12px;color:var(--amber)}
+.b{flex:1;position:relative;height:100%;display:flex;align-items:flex-end}
+.b .fill{width:100%;height:0;border-radius:10px 10px 0 0;transition:height 1.6s cubic-bezier(.2,.8,.2,1)}
+.b .v{position:absolute;left:0;right:0;text-align:center;font-family:var(--serif);font-size:30px;opacity:0;transition:opacity .6s 1.2s}
+.b .k{position:absolute;bottom:-34px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:12px;color:var(--mute)}
+.chart .note{margin-top:46px;font-size:13px;color:var(--mute)}
+.chart.in .b .v{opacity:1}
+@media(max-width:860px){.paper{grid-template-columns:1fr}}
+/* open source */
+.prs{position:relative;margin-top:20px}
+.prs::before{content:"";position:absolute;left:19px;top:10px;bottom:10px;width:2px;background:linear-gradient(var(--teal),var(--violet),var(--amber))}
+.pr{position:relative;display:grid;grid-template-columns:40px 1fr auto;gap:22px;align-items:start;padding:22px 0}
+.pr .node{width:40px;height:40px;border-radius:50%;background:var(--ink);border:2px solid var(--c);display:grid;place-items:center;font-family:var(--mono);font-size:11px;color:var(--c);z-index:1;transition:transform .3s,box-shadow .3s}
+.pr:hover .node{transform:scale(1.15);box-shadow:0 0 24px var(--c)}
+.pr h3{font-weight:500;font-size:20px}
+.pr h3 code{font-family:var(--mono);font-size:16px;color:var(--c);background:rgba(255,255,255,.04);padding:2px 8px;border-radius:6px}
+.pr p{color:var(--mute);margin-top:6px;max-width:60ch}
+.pill{font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--c);color:var(--c);white-space:nowrap}
+.pill.live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:8px;animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.2}}
+@media(max-width:640px){.pr{grid-template-columns:40px 1fr}.pr .pill{grid-column:2;justify-self:start}}
+/* projects */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;overflow:hidden;transform-style:preserve-3d;transition:border-color .3s;will-change:transform}
+.card::before{content:"";position:absolute;inset:0;background:radial-gradient(400px circle at var(--mx,50%) var(--my,50%),rgba(45,212,191,.12),transparent 45%);opacity:0;transition:opacity .3s;pointer-events:none}
+.card:hover{border-color:#2c3b5e}
+.card:hover::before{opacity:1}
+.card .ic{font-size:26px;margin-bottom:14px}
+.card h3{font-weight:700;font-size:19px;margin-bottom:10px}
+.card p{color:var(--mute);font-size:15px;margin-bottom:18px}
+.metric{display:inline-block;font-family:var(--serif);font-size:34px;line-height:1;color:var(--teal);margin-bottom:4px}
+.metric+small{display:block;font-size:12px;color:var(--mute);font-family:var(--mono);margin-bottom:16px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.tags span{font-family:var(--mono);font-size:11px;color:var(--mute);border:1px solid var(--line);padding:3px 9px;border-radius:999px}
+.card .go{display:flex;gap:16px;font-family:var(--mono);font-size:13px}
+.card .go a{color:var(--text);border-bottom:1px solid var(--line);transition:border-color .2s,color .2s}
+.card .go a:hover{color:var(--teal);border-color:var(--teal)}
+.card.wide{grid-column:span 2}
+@media(max-width:720px){.card.wide{grid-column:auto}}
+/* chess */
+.chess{display:grid;grid-template-columns:auto 1fr;gap:64px;align-items:center}
+#board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);width:min(360px,80vw);aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--line);position:relative}
+#board div:not(#knight){position:relative}
+#board div.l{background:#1b2540}#board div.d{background:#111a2f}
+#board div.trail::after{content:"";position:absolute;inset:30%;border-radius:50%;background:var(--teal);opacity:var(--o,0);transition:opacity 1.2s}
+#board #knight{position:absolute;left:0;top:0;width:12.5%;height:12.5%;display:grid;place-items:center;font-size:clamp(24px,5vw,36px);color:var(--amber);transition:left .45s cubic-bezier(.5,0,.3,1),top .45s cubic-bezier(.5,0,.3,1);text-shadow:0 0 18px rgba(251,191,36,.5);z-index:2}
+.chess p{color:var(--mute);font-size:17px;margin-bottom:22px}
+.chess .row{display:flex;gap:36px;flex-wrap:wrap;margin-bottom:26px}
+.chess .row div .n{font-family:var(--serif);font-size:44px;line-height:1}
+.chess .row div .t{font-size:13px;color:var(--mute)}
+@media(max-width:860px){.chess{grid-template-columns:1fr;justify-items:start}}
+/* stack */
+.stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.stack span{font-family:var(--mono);font-size:14px;padding:10px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);transition:transform .25s,border-color .25s,color .25s;cursor:default}
+.stack span:hover{transform:translateY(-4px) rotate(-2deg);border-color:var(--teal);color:var(--teal)}
+/* contact */
+.contact{text-align:center;padding:140px 0 80px}
+.contact h2{font-size:clamp(44px,7vw,96px)}
+.contact .quote{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--mute);margin:10px auto 40px;max-width:32ch}
+.socials{display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
+footer{border-top:1px solid var(--line);padding:28px 0;font-family:var(--mono);font-size:12px;color:var(--mute)}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal,h1 .w,.lede,.cta{opacity:1!important;transform:none!important}}
+</style>
+</head>
+<body>
+<div id="cursorglow"></div>
+
+<nav id="nav"><div class="wrap">
+  <a href="#top" class="logo">Yash<i>.</i></a>
+  <div class="links">
+    <a href="#about">About</a><a href="#research">Research</a><a href="#oss">Open source</a><a href="#projects">Projects</a><a href="#chess">Chess</a><a href="#contact">Contact</a>
+  </div>
+</div></nav>
+
+<header id="top">
+  <canvas id="fan" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>Yash Chitransh · NIT Warangal</div>
+    <h1 id="headline">Forecasts are promises. I check if they're <em>kept.</em></h1>
+    <p class="lede">I work on <b>time series forecasting</b> and <b>uncertainty quantification</b>: conformal prediction, calibration audits of foundation models, and open-source code for <b>sktime</b>. Mathematics first, libraries second.</p>
+    <div class="cta">
+      <a class="btn primary" href="#research">See the research →</a>
+      <a class="btn" href="https://github.com/7524yash7524" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="btn" href="https://doi.org/10.2139/ssrn.7300198" target="_blank" rel="noopener">SSRN paper ↗</a>
+    </div>
+  </div>
+  <div class="hint">↑ live random walk · click anywhere to forecast from that moment</div>
+  <div class="readout" aria-live="off">
+    <small>empirical coverage of the 80% band</small>
+    <span class="big" id="cov">—</span>
+    <div class="bar"><span id="covbar" style="width:0"></span><i style="left:80%"></i></div>
+    <small id="covn">waiting for outcomes…</small>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true"><div class="track" id="marq"></div></div>
+
+<section id="about">
+  <div class="wrap about">
+    <div>
+      <div class="label reveal" data-n="01">About</div>
+      <h2 class="reveal d1">Mathematics is the foundation. Data is the medium. <em>Insight</em> is the output.</h2>
+      <p class="reveal d2">I'm doing an <b>M.Sc. in Mathematics &amp; Scientific Computing at NIT Warangal</b>. Most of my work lives where statistics meets markets: how sure a model really is, and whether its prediction intervals cover the outcomes they claim to cover.</p>
+      <p class="reveal d2">I build things end to end, from ARIMA and SARIMAX to foundation models like Chronos-2, then wrap them in dashboards people can actually use. I like to know <b>why</b> a method works before I trust it.</p>
+      <div class="edu reveal d3">
+        <div><b>M.Sc. Mathematics &amp; Scientific Computing</b><span>National Institute of Technology, Warangal · 2025 – 2027</span></div>
+        <div><b>B.Sc. Mathematics &amp; Statistics</b><span>University of Lucknow</span></div>
+        <div><b>IIT JAM, All India Rank 216</b><span>Mathematical Statistics</span></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat reveal"><div class="n" data-count="216">0</div><div class="t">IIT JAM AIR (Statistics)</div></div>
+      <div class="stat reveal d1"><div class="n" data-count="3">0</div><div class="t">pull requests to sktime</div></div>
+      <div class="stat reveal d2"><div class="n"><span data-count="1">0</span><small> paper</small></div><div class="t">on SSRN: Chronos-2 calibration</div></div>
+      <div class="stat reveal d3"><div class="n" data-count="3797">0</div><div class="t">chess games turned into a dataset</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="research" class="research">
+  <div class="wrap paper">
+    <div>
+      <div class="label reveal" data-n="02">Featured research</div>
+      <h2 class="reveal d1">Is Chronos-2 <em>honest</em> about its uncertainty?</h2>
+      <p class="reveal d2">Amazon's Chronos-2 is a time series foundation model. I audited its prediction intervals on <b>Sensex and Nifty</b>. Its 80% intervals covered only <b>71–75%</b> of real outcomes beyond day one.</p>
+      <p class="reveal d2">Coverage also shifts with the volatility regime, and the pattern flips with the forecast horizon. A conformal correction narrowed the gap, from <b>75.2% to 78.7%</b> at 16 days, but did not fully close it. That last part matters: an honest result beats a flattering one.</p>
+      <div class="cta reveal d3" style="opacity:1;animation:none">
+        <a class="btn primary" href="https://doi.org/10.2139/ssrn.7300198" target="_blank" rel="noopener">Read on SSRN ↗</a>
+        <a class="btn" href="https://github.com/7524yash7524/conformal-prediction_project" target="_blank" rel="noopener">Code ↗</a>
+      </div>
+    </div>
+    <div class="chart reveal d1" id="chart">
+      <h4>Coverage at a 16-day horizon</h4>
+      <div class="bars" id="bars">
+        <div class="target" id="target"><span>target 80%</span></div>
+        <div class="b" data-v="75.2" data-c="#fb7185"><div class="fill"></div><div class="v">75.2%</div><div class="k">Chronos-2 raw</div></div>
+        <div class="b" data-v="78.7" data-c="#2dd4bf"><div class="fill"></div><div class="v">78.7%</div><div class="k">+ conformal</div></div>
+      </div>
+      <p class="note">Axis runs from 60% to 85% so the gap is visible. The dashed line is what an 80% interval promises.</p>
+    </div>
+  </div>
+</section>
+
+<section id="oss">
+  <div class="wrap">
+    <div class="label reveal" data-n="03">Open source</div>
+    <h2 class="reveal d1">Shipping code to <em>sktime</em></h2>
+    <p class="reveal d2" style="color:var(--mute);max-width:60ch;font-size:17px">sktime is the unified Python framework for machine learning with time series. These are the changes I've proposed to it, each one tested and reviewed by its maintainers.</p>
+    <div class="prs">
+      <a class="pr reveal" style="--c:var(--violet)" href="https://github.com/sktime/sktime/pull/11464" target="_blank" rel="noopener">
+        <div class="node">✓</div>
+        <div><h3>#11464 · <code>CutoffSplitter</code> docs</h3><p>Fixed the test-window formula in the docstring and added a diagram of how the folds are cut.</p></div>
+        <span class="pill">merged</span>
+      </a>
+      <a class="pr reveal d1" style="--c:var(--amber)" href="https://github.com/sktime/sktime/pull/11469" target="_blank" rel="noopener">
+        <div class="node">fix</div>
+        <div><h3>#11469 · <code>AutoETS</code> bug fix</h3><p><span class="mono">predict_interval</span> crashed for multiplicative models because the random seed was passed inside <span class="mono">simulate_kwargs</span>. Fixed the adapter and added a regression test.</p></div>
+        <span class="pill live">in review</span>
+      </a>
+      <a class="pr reveal d2" style="--c:var(--teal)" href="https://github.com/sktime/sktime/pull/11692" target="_blank" rel="noopener">
+        <div class="node">new</div>
+        <div><h3>#11692 · <code>StatsModelsTheta</code></h3><p>A new forecaster that interfaces statsmodels' <span class="mono">ThetaModel</span>, with prediction intervals.</p></div>
+        <span class="pill live">in review</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="label reveal" data-n="04">Selected work</div>
+    <h2 class="reveal d1">Things I've <em>built</em></h2>
+    <div class="grid">
+      <article class="card wide reveal">
+        <div class="ic">🎯</div>
+        <h3>Customer Churn &amp; Value-Based Targeting</h3>
+        <div class="metric">$122,995</div><small>expected net gain vs. $27,164 when contacting everyone at 50%+ risk</small>
+        <p>A calibrated gradient boosting model (ROC-AUC 0.845) that ranks telecom customers by expected retention ROI, not just by churn risk.</p>
+        <div class="tags"><span>scikit-learn</span><span>calibration</span><span>streamlit</span></div>
+        <div class="go"><a href="https://customer-churn-risk-analytics-bogmrxieudfevykczcxoht.streamlit.app/" target="_blank" rel="noopener">Live demo ↗</a><a href="https://github.com/7524yash7524/customer-churn-risk-analytics" target="_blank" rel="noopener">Code ↗</a></div>
+      </article>
+      <article class="card reveal d1">
+        <div class="ic">🛡️</div>
+        <h3>Coverage-Aware Guardrails</h3>
+        <div class="metric">Round 2</div><small>Accenture Innovation Challenge 2026</small>
+        <p>Per-use-case Conformal Risk Control for checking AI responses.</p>
+        <div class="tags"><span>conformal risk control</span><span>streamlit</span></div>
+        <div class="go"><a href="https://coverage-aware-guardrails-dwuy4twdkxehhtjrvbkvgx.streamlit.app/" target="_blank" rel="noopener">Live demo ↗</a><a href="https://github.com/7524yash7524/coverage-aware-guardrails" target="_blank" rel="noopener">Code ↗</a></div>
+      </article>
+      <article class="card reveal">
+        <div class="ic">📈</div>
+        <h3>Sensex Forecasting</h3>
+        <div class="metric">1.75%</div><small>MAPE, best of nine models</small>
+        <p>Nine classical models, AR to SARIMAX, compared on BSE Sensex. USD/INR as an exogenous variable won.</p>
+        <div class="tags"><span>statsmodels</span><span>sarimax</span></div>
+        <div class="go"><a href="https://github.com/7524yash7524/Comparative-Evaluation-of-Classical-Statistical-Time-Series-Models-for-Equity-Index-Forecasting" target="_blank" rel="noopener">Code ↗</a></div>
+      </article>
+      <article class="card reveal d1">
+        <div class="ic">🏦</div>
+        <h3>BankCore</h3>
+        <div class="metric">100K+</div><small>synthetic transactions</small>
+        <p>A SQL Server banking database: double-entry ledger enforced by triggers, concurrency-safe transfers and audit logging.</p>
+        <div class="tags"><span>t-sql</span><span>sql server</span></div>
+        <div class="go"><a href="https://github.com/7524yash7524/BankCore-SQLServer" target="_blank" rel="noopener">Code ↗</a></div>
+      </article>
+      <article class="card reveal d2">
+        <div class="ic">💊</div>
+        <h3>Antidiabetic Drug Forecasting</h3>
+        <div class="metric">7.90%</div><small>MAPE vs. 12.69% seasonal naive</small>
+        <p>SARIMA forecast of monthly antidiabetic drug prescriptions in Australia, 1991–2008.</p>
+        <div class="tags"><span>sarima</span><span>healthcare</span></div>
+        <div class="go"><a href="https://github.com/7524yash7524/antidiabetic-drug-forecasting-australia" target="_blank" rel="noopener">Code ↗</a></div>
+      </article>
+      <article class="card reveal">
+        <div class="ic">📄</div>
+        <h3>Resume ↔ JD Matcher</h3>
+        <div class="metric">fit score</div><small>embedding match + missing skills</small>
+        <p>Scores how well a resume fits a job description, flags missing skills and the weakest JD lines.</p>
+        <div class="tags"><span>nlp</span><span>embeddings</span><span>streamlit</span></div>
+        <div class="go"><a href="https://resume-jd-matcher-elcdj8mtm7vyvqf5y3rxx5.streamlit.app/" target="_blank" rel="noopener">Live demo ↗</a><a href="https://github.com/7524yash7524/resume-jd-matcher" target="_blank" rel="noopener">Code ↗</a></div>
+      </article>
+      <article class="card reveal d1">
+        <div class="ic">🗺️</div>
+        <h3>India Census Map</h3>
+        <div class="metric">2011</div><small>district-level census data</small>
+        <p>Interactive district-level map of India Census data with Streamlit and Plotly.</p>
+        <div class="tags"><span>plotly</span><span>streamlit</span></div>
+        <div class="go"><a href="https://k6zpk7ttllgaojegkzq4xz.streamlit.app/" target="_blank" rel="noopener">Live demo ↗</a><a href="https://github.com/7524yash7524/database-mini-project-on-India-Census" target="_blank" rel="noopener">Code ↗</a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="chess" class="research">
+  <div class="wrap chess">
+    <div id="board" class="reveal" aria-label="Knight touring a chessboard"><div id="knight">♞</div></div>
+    <div>
+      <div class="label reveal" data-n="05">Off the clock</div>
+      <h2 class="reveal d1">I turned my own <em>chess games</em> into a dataset.</h2>
+      <p class="reveal d2">Every game I've played on Chess.com went into a model: a win-probability classifier, plus an ARIMA rating forecaster with conformal intervals, so even my rating comes with honest error bars.</p>
+      <div class="row reveal d2">
+        <div><div class="n" data-count="3797">0</div><div class="t">games analysed</div></div>
+        <div><div class="n">0.838</div><div class="t">ROC-AUC, win classifier</div></div>
+      </div>
+      <div class="cta reveal d3" style="opacity:1;animation:none">
+        <a class="btn primary" href="https://chess-dashboard-improved-kxcyh9pakbckwjs9u7bpfm.streamlit.app/" target="_blank" rel="noopener">Open the dashboard ↗</a>
+        <a class="btn" href="https://www.chess.com/member/888yashu888" target="_blank" rel="noopener">Challenge me ♞</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="label reveal" data-n="06">Toolkit</div>
+    <h2 class="reveal d1">What I reach for</h2>
+    <div class="stack reveal d2">
+      <span>Python</span><span>SQL</span><span>R</span><span>C++</span><span>pandas</span><span>NumPy</span><span>scikit-learn</span><span>statsmodels</span><span>sktime</span><span>Chronos-2</span><span>conformal prediction</span><span>Plotly</span><span>Matplotlib</span><span>Seaborn</span><span>Streamlit</span><span>Jupyter</span><span>SQL Server</span><span>Git</span>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap">
+    <div class="label reveal" data-n="07" style="justify-content:center">Say hello</div>
+    <h2 class="reveal d1">Let's talk <em>data.</em></h2>
+    <p class="quote reveal d2">“First principles before abstractions. Understand the math, then use the library.”</p>
+    <div class="socials reveal d3">
+      <a class="btn" href="https://github.com/7524yash7524" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="btn" href="https://www.linkedin.com/in/yash-chitransh-4b108b2aa" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a class="btn" href="https://medium.com/@ysrivastava470" target="_blank" rel="noopener">Medium ↗</a>
+      <a class="btn" href="https://doi.org/10.2139/ssrn.7300198" target="_blank" rel="noopener">SSRN ↗</a>
+      <a class="btn" href="https://www.chess.com/member/888yashu888" target="_blank" rel="noopener">Chess.com ↗</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>© <span id="yr"></span> Yash Chitransh</span><span>built by hand · no frameworks · <span id="clock"></span> IST</span></div></footer>
+
+<script>
+(()=>{
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* headline: split into words for staggered rise */
+const h=document.getElementById('headline');
+let i=0;
+const wrapWords=node=>{[...node.childNodes].forEach(c=>{
+  if(c.nodeType===3){const f=document.createDocumentFragment();c.textContent.split(/(\s+)/).forEach(t=>{if(!t)return;if(/^\s+$/.test(t)){f.append(t);return;}const s=document.createElement('span');s.className='w';s.style.animationDelay=(0.15+i++*0.08)+'s';s.textContent=t;f.append(s);});c.replaceWith(f);}
+  else wrapWords(c);});};
+wrapWords(h);
+
+/* marquee */
+const words=['time series','conformal prediction','calibration','ARIMA → Chronos-2','quant finance','uncertainty quantification','sktime','first principles'];
+const m=document.getElementById('marq');const seg=()=>words.map(w=>`<span>${w}</span>`).join('');m.innerHTML=seg()+seg();
+
+/* nav + cursor glow */
+const nav=document.getElementById('nav');addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
+const g=document.getElementById('cursorglow');
+if(matchMedia('(pointer:fine)').matches) addEventListener('pointermove',e=>{g.style.left=e.clientX+'px';g.style.top=e.clientY+'px'},{passive:true});
+
+/* ===== live forecast fan ===== */
+const cv=document.getElementById('fan'),cx=cv.getContext('2d');
+let W,H,dpr;
+const resize=()=>{dpr=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)};
+resize();addEventListener('resize',resize);
+const randn=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+const Z80=1.2816,Z50=0.6745,HOR=60,DX=()=>W<720?4:6;
+let path=[0],origin=0,hits=0,total=0,mid=0,misses=[];
+for(let k=0;k<8000;k++)path.push(path[path.length-1]+randn());
+for(let j=HOR+1;j<path.length;j++)for(let k=1;k<=HOR;k++){total++;if(Math.abs(path[j]-path[j-k])<=Z80*Math.sqrt(k))hits++;}
+path=path.slice(-200);origin=path.length-1;
+const unit=()=>Math.max(5,H/110);
+function step(){
+  const v=path[path.length-1]+randn();path.push(v);
+  const last=path.length-1,hh=last-origin;
+  for(let k=1;k<=HOR&&last-k>=0;k++){total++;if(Math.abs(v-path[last-k])<=Z80*Math.sqrt(k))hits++;}
+  if(hh>=1&&hh<=HOR&&Math.abs(v-path[origin])>Z80*Math.sqrt(hh))misses.push(last);
+  if(hh>=HOR)origin=path.length-1;
+  if(path.length>2000){const cut=1000;path=path.slice(cut);origin-=cut;misses=misses.map(x=>x-cut).filter(x=>x>=0);}
+  updateReadout();
+}
+const covEl=document.getElementById('cov'),barEl=document.getElementById('covbar'),nEl=document.getElementById('covn');
+function updateReadout(){if(!total)return;const c=100*hits/total;covEl.textContent=c.toFixed(1)+'%';barEl.style.width=Math.min(100,c)+'%';nEl.textContent=`${hits.toLocaleString()} of ${total.toLocaleString()} rolling-origin checks inside · target 80%`;}
+function draw(){
+  const dx=DX(),u=unit(),nowX=W*(W<720?0.55:0.6);
+  const last=path.length-1,xOf=i=>nowX-(last-i)*dx;
+  const first=Math.max(0,Math.ceil(last-nowX/dx)-1);
+  let s=0,n=0;for(let i=first;i<=last;i++){s+=path[i];n++}
+  const target=(s/n+path[origin])/2;mid+=(target-mid)*0.04;
+  const yOf=v=>H*0.56-(v-mid)*u;
+  cx.clearRect(0,0,W,H);
+  // grid
+  cx.strokeStyle='rgba(31,42,68,.55)';cx.lineWidth=1;
+  for(let y=(H*0.56)%60;y<H;y+=60){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+  // fan
+  const ox=xOf(origin),oy=yOf(path[origin]);
+  const band=(z,col)=>{cx.beginPath();cx.moveTo(ox,oy);
+    for(let k=1;k<=HOR;k++)cx.lineTo(ox+k*dx,yOf(path[origin]+z*Math.sqrt(k)));
+    for(let k=HOR;k>=1;k--)cx.lineTo(ox+k*dx,yOf(path[origin]-z*Math.sqrt(k)));
+    cx.closePath();cx.fillStyle=col;cx.fill();};
+  const grd=cx.createLinearGradient(ox,0,ox+HOR*dx,0);grd.addColorStop(0,'rgba(45,212,191,.28)');grd.addColorStop(1,'rgba(45,212,191,.08)');
+  band(Z80,grd);band(Z50,'rgba(45,212,191,.16)');
+  // median
+  cx.setLineDash([4,6]);cx.strokeStyle='rgba(45,212,191,.7)';cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(ox+HOR*dx,oy);cx.stroke();cx.setLineDash([]);
+  // origin marker
+  cx.strokeStyle='rgba(139,151,179,.35)';cx.beginPath();cx.moveTo(ox,0);cx.lineTo(ox,H);cx.stroke();
+  cx.fillStyle='rgba(139,151,179,.8)';cx.font='11px JetBrains Mono, monospace';cx.fillText('forecast origin',ox+8,96);
+  // history
+  cx.lineWidth=2;cx.lineJoin='round';
+  const lg=cx.createLinearGradient(0,0,nowX,0);lg.addColorStop(0,'rgba(230,235,245,0)');lg.addColorStop(.35,'rgba(230,235,245,.55)');lg.addColorStop(1,'rgba(230,235,245,1)');
+  cx.strokeStyle=lg;cx.beginPath();
+  for(let i=first;i<=last;i++){const x=xOf(i),y=yOf(path[i]);i===first?cx.moveTo(x,y):cx.lineTo(x,y);}cx.stroke();
+  // misses
+  for(const i of misses){if(i<first)continue;const x=xOf(i),y=yOf(path[i]);cx.fillStyle='#fbbf24';cx.beginPath();cx.arc(x,y,3,0,7);cx.fill();}
+  // head
+  const hx=xOf(last),hy=yOf(path[last]);
+  cx.fillStyle='rgba(45,212,191,.25)';cx.beginPath();cx.arc(hx,hy,10+3*Math.sin(performance.now()/250),0,7);cx.fill();
+  cx.fillStyle='#e6ebf5';cx.beginPath();cx.arc(hx,hy,4,0,7);cx.fill();
+  // vignette for legibility on the left
+  const vg=cx.createLinearGradient(0,0,W<720?W:W*0.7,0);vg.addColorStop(0,'rgba(10,14,26,.92)');vg.addColorStop(.55,'rgba(10,14,26,.55)');vg.addColorStop(1,'rgba(10,14,26,0)');
+  cx.fillStyle=vg;cx.fillRect(0,0,W,H);
+  const bv=cx.createLinearGradient(0,H*0.75,0,H);bv.addColorStop(0,'rgba(10,14,26,0)');bv.addColorStop(1,'rgba(10,14,26,1)');cx.fillStyle=bv;cx.fillRect(0,H*0.75,W,H*0.25);
+}
+let lastT=0,acc=0,visible=true;
+new IntersectionObserver(([e])=>visible=e.isIntersecting).observe(cv);
+function loop(t){const dt=t-lastT;lastT=t;if(visible&&!document.hidden){acc+=Math.min(dt,100);while(acc>85){step();acc-=85;}draw();}requestAnimationFrame(loop);}
+if(reduce){for(let k=0;k<200;k++)step();draw();}else requestAnimationFrame(loop);
+document.querySelector('header').addEventListener('click',e=>{if(e.target.closest('a'))return;origin=path.length-1;});
+
+/* reveal + counters + chart */
+const countUp=el=>{const end=+el.dataset.count;if(reduce){el.textContent=end.toLocaleString();return;}const t0=performance.now(),d=1600;
+  const f=t=>{const p=Math.min(1,(t-t0)/d),e=1-Math.pow(1-p,4);el.textContent=Math.round(end*e).toLocaleString();if(p<1)requestAnimationFrame(f);};requestAnimationFrame(f);};
+const lo=60,hi=85,pct=v=>((v-lo)/(hi-lo))*100;
+document.getElementById('target').style.bottom=pct(80)+'%';
+document.querySelectorAll('.b').forEach(b=>{b.querySelector('.fill').style.background=`linear-gradient(${b.dataset.c},${b.dataset.c}33)`;b.querySelector('.v').style.bottom=`calc(${pct(+b.dataset.v)}% + 8px)`;b.querySelector('.v').style.color=b.dataset.c;});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;el.classList.add('in');
+  el.querySelectorAll('[data-count]').forEach(countUp);if(el.dataset.count)countUp(el);
+  if(el.id==='chart')el.querySelectorAll('.b').forEach(b=>b.querySelector('.fill').style.height=pct(+b.dataset.v)+'%');
+  if(el.id==='board')startKnight();
+  io.unobserve(el);}),{threshold:.2});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* card tilt + spotlight */
+document.querySelectorAll('.card').forEach(c=>{
+  c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    c.style.setProperty('--mx',x*100+'%');c.style.setProperty('--my',y*100+'%');
+    if(!reduce)c.style.transform=`perspective(900px) rotateX(${(0.5-y)*6}deg) rotateY(${(x-0.5)*8}deg)`;});
+  c.addEventListener('pointerleave',()=>c.style.transform='');
+});
+
+/* knight's tour (Warnsdorff) */
+const board=document.getElementById('board'),kn=document.getElementById('knight');const cells=[];
+for(let r=0;r<8;r++)for(let c=0;c<8;c++){const d=document.createElement('div');d.className=((r+c)%2?'d':'l')+' trail';board.insertBefore(d,kn);cells.push(d);}
+const moves=[[1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2]];
+function tour(sr,sc){const seen=new Set([sr*8+sc]),out=[[sr,sc]];let r=sr,c=sc;
+  const deg=(r,c)=>moves.filter(([a,b])=>{const R=r+a,C=c+b;return R>=0&&R<8&&C>=0&&C<8&&!seen.has(R*8+C)}).length;
+  for(let k=1;k<64;k++){let best=null,bd=9;for(const[a,b]of moves){const R=r+a,C=c+b;if(R<0||R>7||C<0||C>7||seen.has(R*8+C))continue;const d=deg(R,C);if(d<bd){bd=d;best=[R,C];}}
+    if(!best)break;[r,c]=best;seen.add(r*8+c);out.push(best);}return out;}
+let started=false;
+function startKnight(){if(started)return;started=true;let seq=tour(0,0),k=0;
+  const place=([r,c])=>{kn.style.left=c*12.5+'%';kn.style.top=r*12.5+'%';};
+  place(seq[0]);
+  setInterval(()=>{k++;if(k>=seq.length){cells.forEach(x=>x.style.setProperty('--o',0));const s=Math.floor(Math.random()*64);seq=tour(Math.floor(s/8),s%8);k=0;}
+    const [r,c]=seq[k];place([r,c]);const cell=cells[r*8+c];cell.style.setProperty('--o',.35);},reduce?2000:520);}
+
+/* footer */
+document.getElementById('yr').textContent=new Date().getFullYear();
+const clk=document.getElementById('clock');const tick=()=>clk.textContent=new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit'});tick();setInterval(tick,30000);
+})();
+</script>
+</body>
+</html>
